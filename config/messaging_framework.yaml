@@ -1,0 +1,62 @@
+# Onboarded Messaging Framework
+# Source: Messaging Guide (Google Drive)
+
+core_positioning:
+  tagline: "System of Action"
+  description: "Not a system of record. The orchestration layer between ATS and payroll that makes compliance happen automatically."
+  value_prop: "30-40% improvement in time-to-start for workers"
+  framing: "Data orchestration layer"
+
+personas:
+  hr_ops:
+    titles: ["VP of HR Operations", "Director of Onboarding", "Recruiter"]
+    messaging_track: "Speed + reducing manual work"
+    hook: "Stop re-entering data across 5 systems."
+    pain_points:
+      - "Manual data entry across multiple systems"
+      - "Slow time-to-start for workers"
+      - "Compliance paperwork bottlenecks"
+      - "Onboarding errors and rework"
+    value_props:
+      - "Automated data orchestration across all systems"
+      - "30-40% reduction in time-to-start"
+      - "Zero re-entry of worker data"
+
+  hr_engineer:
+    titles: ["Director of IT", "Head of Systems", "HR Engineer"]
+    messaging_track: "Integration flexibility + configuration power"
+    hook: "Connect any ATS to any payroll without custom code."
+    pain_points:
+      - "Brittle point-to-point integrations"
+      - "Custom code maintenance burden"
+      - "ATS migration complexity"
+      - "Integration breaks after vendor updates"
+    value_props:
+      - "ATS-agnostic integration layer"
+      - "Configuration without code"
+      - "Integration persists through ATS changes"
+
+  c_suite:
+    titles: ["Chief People Officer", "CHRO", "COO", "VP HR"]
+    messaging_track: "Compliance risk reduction + cost savings"
+    hook: "Eliminate audit failures and reduce time-to-start by 30-40%."
+    pain_points:
+      - "Compliance audit failures"
+      - "Regulatory risk exposure"
+      - "High cost of manual compliance processes"
+      - "Inability to scale onboarding"
+    value_props:
+      - "Pre-built compliance content, maintained by Onboarded"
+      - "Automated I-9, background checks, payroll sync"
+      - "Multi-tenant, white-label capability"
+
+industry_specific:
+  healthcare:
+    compliance_focus: "credentialing"
+    key_pain: "credential verification bottlenecks"
+  staffing:
+    compliance_focus: "I-9, employment eligibility"
+    key_pain: "volume compliance at scale"
+  logistics_retail:
+    compliance_focus: "rapid onboarding compliance"
+    key_pain: "seasonal hiring surge compliance"

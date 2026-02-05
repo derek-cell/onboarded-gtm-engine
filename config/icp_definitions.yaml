@@ -1,0 +1,64 @@
+# Onboarded ICP Definitions
+# Used by Script 1 (Account Intelligence) for scoring
+
+icps:
+  staffing_organizations:
+    priority: 1
+    focus_percentage: 70
+    label: "Staffing Organizations"
+    tiers:
+      enterprise:
+        label: "Enterprise Staffing"
+        min_employees: 500
+        min_revenue: "100M"
+        operations: "multi-state"
+      mid_market:
+        label: "MM/SMB Staffing"
+        employee_range: [50, 500]
+        operations: "regional"
+        stage: "growth"
+      healthcare:
+        label: "Healthcare Staffing"
+        size: "any"
+        urgency: "highest"
+        reason: "compliance density"
+    sweet_spot:
+      min_onboards_per_month: 500
+      min_downstream_systems: 3
+    ats_fit:
+      primary: ["Bullhorn"]
+      secondary: ["Jobvite", "TempWorks"]
+      supported: "any Merge-supported ATS"
+    buying_signals:
+      - "manual or ATS-native onboarding"
+      - "compliance pain in job postings"
+      - "onboarding-related job postings"
+      - "ATS migration announcements"
+
+  platform_partners:
+    priority: 2
+    focus_percentage: 20
+    label: "Platform Partners"
+    types:
+      - label: "ATS Vendors"
+        signal: "wanting embedded onboarding (white-label)"
+      - label: "Payroll Providers"
+        signal: "needing compliance data normalization"
+      - label: "Background Check Vendors"
+        signal: "wanting stable ATS-agnostic integration"
+    buying_signals:
+      - "partner has clients asking about onboarding"
+      - "partner's current integration is brittle"
+      - "partner expanding into adjacent verticals"
+
+  enterprise_direct:
+    priority: 3
+    focus_percentage: 10
+    label: "Enterprise Direct Employers"
+    verticals: ["healthcare systems", "logistics", "retail"]
+    hiring_type: "high-volume hourly"
+    status: "emerging — team capacity focused on staffing + partners first"
+
+deal_thresholds:
+  min_arr_direct: 50000
+  revenue_context: "$1.5-2M revenue generated in very short period"

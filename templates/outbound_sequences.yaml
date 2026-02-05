@@ -1,0 +1,69 @@
+# Outbound Sequence Templates
+# Used by Script 3 (Personalized Outbound Generator)
+
+sequence_structure:
+  touches: 4
+  cadence:
+    - day: 0
+      type: "intro"
+      label: "Pain-aware intro"
+    - day: 3
+      type: "value"
+      label: "Value prop + social proof"
+    - day: 7
+      type: "differentiation"
+      label: "Competitive differentiation"
+    - day: 12
+      type: "cta"
+      label: "Call-to-action with urgency"
+
+persona_templates:
+  hr_ops:
+    tone: "empathetic, operational"
+    key_messages:
+      - "Stop re-entering data across 5 systems"
+      - "30-40% improvement in time-to-start"
+      - "Automated compliance without the manual work"
+    proof_points:
+      - "staffing firms processing 500+ onboards/month"
+      - "eliminated manual data entry across ATS-payroll-background check"
+    subject_line_patterns:
+      - "{{ company_name }}'s onboarding bottleneck"
+      - "Quick question about {{ ats_name }} onboarding"
+      - "How {{ similar_company }} cut time-to-start by 35%"
+
+  hr_engineer:
+    tone: "technical, pragmatic"
+    key_messages:
+      - "Connect any ATS to any payroll without custom code"
+      - "Integration persists through ATS changes"
+      - "Configuration without code — policy engine, not point solution"
+    proof_points:
+      - "ATS-agnostic integration layer"
+      - "survived 3 client ATS migrations without integration breaks"
+    subject_line_patterns:
+      - "{{ ats_name }} ↔ payroll integration question"
+      - "Replacing point-to-point integrations at {{ company_name }}"
+      - "Your onboarding integration layer"
+
+  c_suite:
+    tone: "strategic, ROI-focused"
+    key_messages:
+      - "Eliminate audit failures and reduce time-to-start by 30-40%"
+      - "System of Action — orchestration layer, not another system of record"
+      - "Pre-built compliance content, maintained by Onboarded"
+    proof_points:
+      - "zero audit failures after implementation"
+      - "$X savings from eliminating manual compliance processes"
+    subject_line_patterns:
+      - "Compliance risk at {{ company_name }}"
+      - "{{ industry }} onboarding — 30-40% faster"
+      - "Quick question for {{ first_name }}"
+
+activecampaign_tags:
+  icp_tier: ["tier-1", "tier-2", "tier-3"]
+  industry: ["staffing-enterprise", "staffing-healthcare", "staffing-smb",
+             "partner-ats", "partner-payroll", "partner-screening",
+             "enterprise-healthcare", "enterprise-logistics", "enterprise-retail"]
+  persona: ["hr-ops", "hr-engineer", "c-suite", "compliance", "operations"]
+  sequence: ["v1-initial", "v1-followup"]

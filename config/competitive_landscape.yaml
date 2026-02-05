@@ -1,0 +1,67 @@
+# Competitive Landscape
+# Used by Script 7 (Competitive Intelligence Tracker)
+
+competitors:
+  bullhorn_onboarding:
+    name: "Bullhorn Onboarding"
+    type: "ATS-native module"
+    weakness: "ATS-native onboarding is an afterthought"
+    our_advantage: "Purpose-built orchestration layer, works WITH Bullhorn rather than replacing it"
+    monitor:
+      - "bullhorn.com/blog"
+      - "bullhorn product releases"
+      - "bullhorn onboarding features"
+
+  workbright:
+    name: "WorkBright"
+    type: "Point solution"
+    weakness: "Forms only, no integration orchestration"
+    our_advantage: "Full compliance orchestration: forms + background checks + I-9 + payroll sync"
+    monitor:
+      - "workbright.com"
+      - "workbright news"
+      - "workbright product updates"
+
+  clickboarding:
+    name: "ClickBoarding"
+    parent: "Engage2Excel"
+    type: "Legacy platform"
+    weakness: "Legacy architecture, slow to adapt"
+    our_advantage: "Modern policy engine, configurable without code"
+    monitor:
+      - "clickboarding.com"
+      - "engage2excel acquisitions"
+      - "clickboarding product news"
+
+  instawork:
+    name: "Instawork"
+    type: "Marketplace model"
+    weakness: "Marketplace model, not enterprise onboarding"
+    our_advantage: "Enterprise-grade with multi-tenant, white-label capability"
+    monitor:
+      - "instawork.com/blog"
+      - "instawork funding"
+      - "instawork enterprise"
+
+  fountain:
+    name: "Fountain"
+    type: "High-volume hiring platform"
+    weakness: "Focused on hiring, onboarding is secondary"
+    our_advantage: "Dedicated onboarding orchestration with deep compliance"
+    monitor:
+      - "fountain.com/blog"
+      - "fountain product updates"
+      - "fountain hiring news"
+
+  in_house:
+    name: "In-house Builds"
+    type: "Custom development"
+    weakness: "Expensive to maintain, can't keep up with compliance changes"
+    our_advantage: "Pre-built compliance content, maintained by Onboarded"
+
+tracking_signals:
+  - "New product announcements or feature releases"
+  - "Job postings (hiring signals)"
+  - "Press releases, funding announcements"
+  - "Customer wins/losses"
+  - "Pricing changes"

@@ -1,0 +1,7 @@
+[0;34m[→][0m Verifying GitHub token...
+[0;32m[✓][0m Authenticated as: derek-cell
+
+[0;34m[→][0m Creating repository: derek-cell/onboarded-gtm-engine
+[1;33m[!][0m Repository already exists — skipping creation
+
+[0;34m[→][0m Pushing code to repository...

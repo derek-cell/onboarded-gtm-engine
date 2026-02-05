@@ -1,0 +1,100 @@
+# Attio CRM Schema Reference
+# Existing AI enrichment fields — DO NOT recreate, fill and refresh
+
+company_ai_fields:
+  - slug: ai_account_brief
+    type: text
+    purpose: "Executive summary of the account"
+  - slug: ai_icp_rationale
+    type: text
+    purpose: "Why this account fits (or doesn't) ICP"
+  - slug: ai_personas
+    type: text
+    purpose: "Key buyer personas identified"
+  - slug: ai_enriched_description
+    type: text
+    purpose: "Company description"
+  - slug: ai_enriched_industry
+    type: text
+    purpose: "Industry classification"
+  - slug: ai_enriched_employee_count
+    type: text
+    purpose: "Headcount data"
+  - slug: ai_enriched_funding
+    type: text
+    purpose: "Funding history"
+  - slug: ai_enriched_tech_stack
+    type: text
+    purpose: "Technology stack"
+  - slug: ai_enriched_key_people
+    type: text
+    purpose: "Decision makers"
+  - slug: ai_enriched_pain_points
+    type: text
+    purpose: "Likely pain points"
+  - slug: ai_enriched_buying_signals
+    type: text
+    purpose: "Active buying signals"
+  - slug: ai_enrichment_confidence
+    type: number
+    purpose: "Confidence score (0-100)"
+  - slug: ai_enriched_at
+    type: timestamp
+    purpose: "Last enrichment time"
+  - slug: next_bext_action
+    type: select
+    purpose: "Recommended next step"
+    options:
+      - "Launch Outbound"
+      - "Build Buying Committee"
+      - "Partner Intro Request"
+      - "Enrich Missing Data"
+      - "Nurture"
+      - "Disqualify"
+      - "Schedule Discovery"
+      - "Technical Deep Dive"
+      - "Executive Sponsor Needed"
+  - slug: claude_ai_gtm_channel
+    type: select
+    purpose: "Channel segmentation"
+    option_count: 16
+  - slug: gtm_confidence
+    type: number
+    purpose: "Classification confidence"
+  - slug: gtm_reasoning
+    type: text
+    purpose: "Why this classification"
+  - slug: gtm_feedback_status
+    type: status
+    purpose: "Human review loop"
+    states: ["Pending Review", "Approved", "Rejected", "Needs Update"]
+
+pipeline:
+  stages:
+    - name: "Lead"
+      order: 1
+    - name: "Intro Call"
+      order: 2
+    - name: "Discovery 'Fit'"
+      order: 3
+    - name: "Solutioning/Tech"
+      order: 4
+    - name: "Redlines"
+      order: 5
+    - name: "Won"
+      order: 6
+    - name: "Lost"
+      order: 7
+    - name: "In Progress"
+      order: 8
+  deal_types:
+    - "Partner Customer"
+    - "Direct"
+    - "System Integrator"
+    - "Partner"
+    - "Direct - Salesforce"
+    - "Marketplace"
+    - "Partner Prospect"
+
+deal_fields_count: 26
+company_fields_count: 76

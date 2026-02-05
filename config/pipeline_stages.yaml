@@ -1,0 +1,53 @@
+# Pipeline Stage Configuration
+# Used by Script 6 (Pipeline Health Monitor)
+
+stages:
+  lead:
+    name: "Lead"
+    order: 1
+    expected_max_days: 14
+    stall_alert_days: 7
+    stall_signal: "no activity"
+    required_fields: ["ai_account_brief"]
+
+  intro_call:
+    name: "Intro Call"
+    order: 2
+    expected_max_days: 7
+    stall_alert_days: 5
+    stall_signal: "no meeting scheduled"
+    required_fields: ["ai_account_brief", "ai_enriched_key_people"]
+
+  discovery:
+    name: "Discovery 'Fit'"
+    order: 3
+    expected_max_days: 21
+    stall_alert_days: 10
+    stall_signal: "no activity"
+    required_fields: ["ai_icp_rationale", "ai_personas"]
+
+  solutioning:
+    name: "Solutioning/Tech"
+    order: 4
+    expected_max_days: 30
+    stall_alert_days: 14
+    stall_signal: "no activity"
+    required_fields: ["ai_enriched_tech_stack", "deal_amount"]
+
+  redlines:
+    name: "Redlines"
+    order: 5
+    expected_max_days: 21
+    stall_alert_days: 7
+    stall_signal: "no activity"
+    required_fields: ["deal_amount", "close_date"]
+
+activity_thresholds:
+  early_stage_inactivity_days: 7
+  mid_stage_inactivity_days: 14
+
+metrics:
+  - "total_pipeline_value_by_stage"
+  - "pipeline_coverage_ratio"
+  - "average_deal_velocity_by_stage"
+  - "win_rate_trending"

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarded Pipeline Health Review — Feb 5, 2026</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.6; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  /* Header */
+  .header { text-align: center; padding: 40px 0 32px; border-bottom: 1px solid #1e293b; margin-bottom: 32px; }
+  .header h1 { font-size: 28px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .header .subtitle { color: #94a3b8; font-size: 15px; }
+
+  /* Health Score */
+  .health-score { display: flex; align-items: center; gap: 40px; background: linear-gradient(135deg, #1e1b3a 0%, #1a1535 100%); border: 1px solid #312e81; border-radius: 16px; padding: 32px; margin-bottom: 32px; }
+  .score-ring { position: relative; width: 160px; height: 160px; flex-shrink: 0; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring .bg { fill: none; stroke: #1e293b; stroke-width: 12; }
+  .score-ring .fg { fill: none; stroke: #ef4444; stroke-width: 12; stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 343; transition: stroke-dashoffset 1.5s ease; }
+  .score-number { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .score-number .val { font-size: 48px; font-weight: 800; color: #ef4444; }
+  .score-number .lbl { font-size: 13px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+  .score-dims { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .dim { background: rgba(255,255,255,0.03); border: 1px solid #1e293b; border-radius: 10px; padding: 16px; }
+  .dim .dim-name { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 8px; }
+  .dim .dim-bar { height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+  .dim .dim-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+  .dim .dim-score { font-size: 20px; font-weight: 700; }
+  .dim .dim-issue { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+  .fill-red { background: #ef4444; }
+  .fill-orange { background: #f97316; }
+  .fill-yellow { background: #eab308; }
+  .text-red { color: #ef4444; }
+  .text-orange { color: #f97316; }
+  .text-yellow { color: #eab308; }
+
+  /* KPI Strip */
+  .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .kpi { background: #1e293b; border-radius: 12px; padding: 20px; text-align: center; }
+  .kpi .kpi-val { font-size: 28px; font-weight: 800; color: #f8fafc; }
+  .kpi .kpi-val.warn { color: #f97316; }
+  .kpi .kpi-val.bad { color: #ef4444; }
+  .kpi .kpi-lbl { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+
+  /* Section */
+  .section { margin-bottom: 32px; }
+  .section-title { font-size: 18px; font-weight: 700; color: #f8fafc; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #1e293b; display: flex; align-items: center; gap: 8px; }
+  .badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-red { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .badge-orange { background: rgba(249,115,22,0.15); color: #f97316; }
+  .badge-green { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .badge-blue { background: rgba(59,130,246,0.15); color: #3b82f6; }
+
+  /* Priority Actions */
+  .action-card { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 12px; border-left: 4px solid #3b82f6; }
+  .action-card .action-num { font-size: 12px; font-weight: 700; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .action-card h3 { font-size: 16px; font-weight: 600; color: #f8fafc; margin-bottom: 8px; }
+  .action-card p { font-size: 14px; color: #94a3b8; }
+  .action-card .impact { margin-top: 8px; font-size: 13px; color: #22c55e; font-weight: 500; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 10px 12px; background: #1e293b; color: #94a3b8; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 10px 12px; border-bottom: 1px solid #1e293b; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .deal-name { font-weight: 600; color: #f8fafc; }
+  .money { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stage-pill { display: inline-block; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+  .stage-redlines { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .stage-solution { background: rgba(249,115,22,0.15); color: #f97316; }
+  .stage-discovery { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .stage-intro { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .overdue { color: #ef4444; font-weight: 600; }
+  .no-data { color: #475569; font-style: italic; }
+
+  /* Pipeline Shape */
+  .funnel { margin-bottom: 24px; }
+  .funnel-row { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .funnel-label { width: 140px; text-align: right; font-size: 13px; color: #94a3b8; flex-shrink: 0; }
+  .funnel-bar-wrap { flex: 1; height: 36px; background: #1e293b; border-radius: 6px; overflow: hidden; position: relative; }
+  .funnel-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 12px; font-size: 12px; font-weight: 600; color: #fff; transition: width 1s ease; }
+  .funnel-meta { width: 140px; font-size: 13px; color: #94a3b8; flex-shrink: 0; }
+
+  /* Hygiene Grid */
+  .hygiene-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .hygiene-card { background: #1e293b; border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 14px; }
+  .hygiene-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .hygiene-icon.critical { background: rgba(239,68,68,0.15); }
+  .hygiene-icon.warning { background: rgba(249,115,22,0.15); }
+  .hygiene-text .ht-label { font-size: 14px; font-weight: 600; color: #f8fafc; }
+  .hygiene-text .ht-detail { font-size: 12px; color: #94a3b8; }
+
+  /* Recommendations */
+  .rec-timeline { position: relative; padding-left: 24px; }
+  .rec-timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: #1e293b; }
+  .rec-item { position: relative; margin-bottom: 16px; }
+  .rec-item::before { content: ''; position: absolute; left: -20px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; border: 2px solid #0f172a; }
+  .rec-item.done::before { background: #22c55e; }
+  .rec-item h4 { font-size: 14px; font-weight: 600; color: #f8fafc; }
+  .rec-item p { font-size: 13px; color: #94a3b8; }
+
+  /* Archive */
+  .archive-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.1); border-radius: 8px; margin-bottom: 6px; }
+  .archive-row .ar-name { font-weight: 600; color: #f8fafc; font-size: 14px; }
+  .archive-row .ar-val { font-weight: 600; color: #94a3b8; font-size: 14px; }
+  .archive-row .ar-reason { font-size: 12px; color: #ef4444; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 32px 0 16px; border-top: 1px solid #1e293b; margin-top: 40px; color: #475569; font-size: 12px; }
+
+  @media (max-width: 768px) {
+    .health-score { flex-direction: column; }
+    .score-dims { grid-template-columns: 1fr; }
+    .kpi-strip { grid-template-columns: 1fr 1fr; }
+    .hygiene-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Pipeline Health Review</h1>
+    <div class="subtitle">Onboarded &mdash; February 5, 2026 &mdash; 128 deals analyzed, 30 active</div>
+  </div>
+
+  <!-- Health Score -->
+  <div class="health-score">
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle class="bg" cx="80" cy="80" r="70"/>
+        <circle class="fg" cx="80" cy="80" r="70"/>
+      </svg>
+      <div class="score-number">
+        <div class="val">22</div>
+        <div class="lbl">out of 100</div>
+      </div>
+    </div>
+    <div class="score-dims">
+      <div class="dim">
+        <div class="dim-name">Stage Progression</div>
+        <div class="dim-bar"><div class="dim-fill fill-red" style="width:12%"></div></div>
+        <div class="dim-score text-red">3/25</div>
+        <div class="dim-issue">All 30 deals stalled 11+ months. Zero stage movement recorded.</div>
+      </div>
+      <div class="dim">
+        <div class="dim-name">Activity Recency</div>
+        <div class="dim-bar"><div class="dim-fill fill-red" style="width:8%"></div></div>
+        <div class="dim-score text-red">2/25</div>
+        <div class="dim-issue">No activity recorded since CRM import (Mar 2025).</div>
+      </div>
+      <div class="dim">
+        <div class="dim-name">Close Date Accuracy</div>
+        <div class="dim-bar"><div class="dim-fill fill-red" style="width:20%"></div></div>
+        <div class="dim-score text-red">5/25</div>
+        <div class="dim-issue">100% of close dates are overdue. 53% have no date at all.</div>
+      </div>
+      <div class="dim">
+        <div class="dim-name">Contact Coverage</div>
+        <div class="dim-bar"><div class="dim-fill fill-orange" style="width:48%"></div></div>
+        <div class="dim-score text-orange">12/25</div>
+        <div class="dim-issue">60% of deals have zero contacts. Only 20% have 2+ contacts.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Strip -->
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="kpi-val">$1.56M</div>
+      <div class="kpi-lbl">Total Active Pipeline</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val bad">30</div>
+      <div class="kpi-lbl">Active Deals (all stalled)</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val warn">16</div>
+      <div class="kpi-lbl">Deals Missing Close Date</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-val bad">18</div>
+      <div class="kpi-lbl">Deals with Zero Contacts</div>
+    </div>
+  </div>
+
+  <!-- Priority Actions -->
+  <div class="section">
+    <div class="section-title">Priority Actions This Week</div>
+
+    <div class="action-card">
+      <div class="action-num">Action 1 &mdash; 2 hours</div>
+      <h3>Make 6 Decision Calls on Your Biggest Deals</h3>
+      <p>Call the owners/contacts on Staffmark ($500K), Fortis Healthcare ($120K), Tempworks ($150K), Korn Ferry ($100K), Jitjatjo ($80K), and Oxfordglobal ($100K). One question: "Is this deal still real and moving?" Document: still active, reset close date, add contacts, or kill it.</p>
+      <div class="impact">Expected: Identify 3-4 deals that are genuinely alive. Archive the rest.</div>
+    </div>
+
+    <div class="action-card">
+      <div class="action-num">Action 2 &mdash; 1 hour</div>
+      <h3>Delete All Overdue Close Dates</h3>
+      <p>Every close date in the CRM is fiction. Remove dates from 2024-02-02, 2025-03-31, and 2025-04-30. Only re-set dates after confirming deals are alive from your decision calls. No date is better than a lie.</p>
+      <div class="impact">Expected: Stop false urgency. Clean baseline for real forecasting.</div>
+    </div>
+
+    <div class="action-card">
+      <div class="action-num">Action 3 &mdash; 1.5 hours</div>
+      <h3>Add Contacts to Zero-Thread Deals</h3>
+      <p>18 deals have zero contacts &mdash; including Fortis Healthcare ($120K in Redlines!). Find and add at least 1 decision-maker to every deal above $10K. If you can't find a contact, the deal isn't real.</p>
+      <div class="impact">Expected: Reduce zero-contact deals from 18 to under 10.</div>
+    </div>
+  </div>
+
+  <!-- Pipeline Shape: Funnel -->
+  <div class="section">
+    <div class="section-title">Pipeline Shape by Stage</div>
+    <div class="funnel">
+      <div class="funnel-row">
+        <div class="funnel-label">Introductory Call</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:11%;background:#a855f7">$177K</div></div>
+        <div class="funnel-meta">4 deals (11%)</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Discovery &mdash; "Fit"</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:49%;background:#3b82f6">$758K</div></div>
+        <div class="funnel-meta">14 deals (49%)</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Solutioning / Tech</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:32%;background:#f97316">$491K</div></div>
+        <div class="funnel-meta">10 deals (32%)</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Redlines</div>
+        <div class="funnel-bar-wrap"><div class="funnel-bar" style="width:9%;background:#ef4444">$132K</div></div>
+        <div class="funnel-meta">2 deals (9%)</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:#94a3b8;margin-top:8px"><strong style="color:#f97316">Diagnosis:</strong> Pipeline is bottom-heavy. 49% of value sits in Discovery where deals are stalling. Only 9% has reached Redlines vs. a healthy 25%. Deals are not progressing.</p>
+  </div>
+
+  <!-- Deal Priority Matrix -->
+  <div class="section">
+    <div class="section-title">Deal Prioritization &mdash; Close This Month <span class="badge badge-red">$890K at stake</span></div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Deal</th><th>Value</th><th>Stage</th><th>Close Date</th><th>Contacts</th><th>Action Required</th></tr></thead>
+      <tbody>
+        <tr><td class="deal-name">Staffmark</td><td class="money">$500K</td><td><span class="stage-pill stage-discovery">Discovery</span></td><td class="overdue">2024-02-02 (705d overdue)</td><td>1</td><td>CALL THIS WEEK. If real, reset to Mar 2026. If dead, archive.</td></tr>
+        <tr><td class="deal-name">Tempworks Reseller</td><td class="money">$150K</td><td><span class="stage-pill stage-solution">Solutioning</span></td><td class="overdue">2025-03-31 (341d overdue)</td><td>0</td><td>Call partner contact. Reset or kill.</td></tr>
+        <tr><td class="deal-name">Fortis Healthcare</td><td class="money">$120K</td><td><span class="stage-pill stage-redlines">Redlines</span></td><td class="no-data">No date set</td><td class="overdue">0 (!)</td><td>CRITICAL: Find a contact. $120K deal with nobody attached.</td></tr>
+        <tr><td class="deal-name">Everee Reseller</td><td class="money">$120K</td><td><span class="stage-pill stage-solution">Solutioning</span></td><td class="overdue">2025-03-31 (341d overdue)</td><td>0</td><td>Call partner contact. Same as Tempworks.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Deal Prioritization &mdash; Keep Warm <span class="badge badge-orange">$435K</span></div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Deal</th><th>Value</th><th>Stage</th><th>Close Date</th><th>Contacts</th><th>Signal</th></tr></thead>
+      <tbody>
+        <tr><td class="deal-name">Korn Ferry</td><td class="money">$100K</td><td><span class="stage-pill stage-discovery">Discovery</span></td><td class="overdue">2025-03-31</td><td>2</td><td>$300K TCV. Verify contacts are still warm.</td></tr>
+        <tr><td class="deal-name">Housecall Pro</td><td class="money">$100K</td><td><span class="stage-pill stage-discovery">Discovery</span></td><td class="overdue">2025-04-30</td><td>0</td><td>10K placements/yr. $300K TCV. Best volume signal in pipeline.</td></tr>
+        <tr><td class="deal-name">ASYMBL Reseller</td><td class="money">$100K</td><td><span class="stage-pill stage-solution">Solutioning</span></td><td class="overdue">2025-04-30</td><td>0</td><td>$300K TCV. Reseller deal stalled on partner side.</td></tr>
+        <tr><td class="deal-name">Oxfordglobal</td><td class="money">$100K</td><td><span class="stage-pill stage-intro">Intro Call</span></td><td class="no-data">None</td><td>0</td><td>Direct-Salesforce. Only fresh intro-stage deal.</td></tr>
+        <tr><td class="deal-name">Altis</td><td class="money">$22.5K</td><td><span class="stage-pill stage-discovery">Discovery</span></td><td class="overdue">2025-03-31</td><td>3</td><td>4,500 placements/yr. Best-threaded mid-market deal.</td></tr>
+        <tr><td class="deal-name">Drake International</td><td class="money">$12K</td><td><span class="stage-pill stage-discovery">Discovery</span></td><td class="overdue">2025-03-31</td><td>0</td><td>"Phased Regional Roll Out" noted &mdash; real intent signal.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Risk Flags -->
+  <div class="section">
+    <div class="section-title">Risk Flags <span class="badge badge-red">Critical</span></div>
+
+    <h4 style="color:#ef4444;font-size:14px;margin-bottom:12px;margin-top:8px">Past Close Date (All 14 dated deals are overdue)</h4>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Deal</th><th>Value</th><th>Close Date</th><th>Days Overdue</th><th>Recommendation</th></tr></thead>
+      <tbody>
+        <tr><td class="deal-name">Staffmark</td><td class="money">$500K</td><td>2024-02-02</td><td class="overdue">705</td><td>Investigate immediately. $500K paradox deal.</td></tr>
+        <tr><td class="deal-name">Jitjatjo</td><td class="money">$80K</td><td>2024-02-02</td><td class="overdue">705</td><td>5 contacts but ancient date. Call lead contact.</td></tr>
+        <tr><td class="deal-name">Hospitality Staffing</td><td class="money">$50K</td><td>2024-02-02</td><td class="overdue">705</td><td>Quick call. If dead, archive immediately.</td></tr>
+        <tr><td class="deal-name">Tempworks Reseller</td><td class="money">$150K</td><td>2025-03-31</td><td class="overdue">341</td><td>Partner call. Reset date or archive.</td></tr>
+        <tr><td class="deal-name">Everee Reseller</td><td class="money">$120K</td><td>2025-03-31</td><td class="overdue">341</td><td>Same as Tempworks.</td></tr>
+        <tr><td class="deal-name">Korn Ferry</td><td class="money">$100K</td><td>2025-03-31</td><td class="overdue">341</td><td>Call this week. 2 contacts to verify.</td></tr>
+        <tr><td class="deal-name">Altis</td><td class="money">$22.5K</td><td>2025-03-31</td><td class="overdue">341</td><td>Call lead. Confirm phased timeline.</td></tr>
+        <tr><td class="deal-name">Drake International</td><td class="money">$12K</td><td>2025-03-31</td><td class="overdue">341</td><td>Confirm phased rollout is still live.</td></tr>
+        <tr><td class="deal-name">Yupro</td><td class="money">$1.25K</td><td>2025-03-31</td><td class="overdue">341</td><td>Batch quarterly nurture.</td></tr>
+        <tr><td class="deal-name">ASYMBL Reseller</td><td class="money">$100K</td><td>2025-04-30</td><td class="overdue">281</td><td>Partner check-in. Reset or kill.</td></tr>
+        <tr><td class="deal-name">Housecall Pro</td><td class="money">$100K</td><td>2025-04-30</td><td class="overdue">281</td><td>Call. 10K placements signal = worth 1 call.</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h4 style="color:#f97316;font-size:14px;margin:20px 0 12px">Single-Threaded / Zero-Contact Deals (&gt;$10K value)</h4>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Deal</th><th>Value</th><th>Stage</th><th>Contacts</th><th>Risk</th></tr></thead>
+      <tbody>
+        <tr><td class="deal-name">Fortis Healthcare</td><td class="money">$120K</td><td>Redlines</td><td class="overdue">0</td><td>$120K in Redlines with NOBODY. Highest-risk deal.</td></tr>
+        <tr><td class="deal-name">Tempworks Reseller</td><td class="money">$150K</td><td>Solutioning</td><td class="overdue">0</td><td>$150K reseller deal with no contact on file.</td></tr>
+        <tr><td class="deal-name">Everee Reseller</td><td class="money">$120K</td><td>Solutioning</td><td class="overdue">0</td><td>Same pattern as Tempworks.</td></tr>
+        <tr><td class="deal-name">ASYMBL Reseller</td><td class="money">$100K</td><td>Solutioning</td><td class="overdue">0</td><td>$100K + no contacts = phantom deal.</td></tr>
+        <tr><td class="deal-name">Housecall Pro</td><td class="money">$100K</td><td>Discovery</td><td class="overdue">0</td><td>10K placements but no contact in CRM.</td></tr>
+        <tr><td class="deal-name">Oxfordglobal</td><td class="money">$100K</td><td>Intro Call</td><td class="overdue">0</td><td>$100K intro deal. Need contact ASAP.</td></tr>
+        <tr><td class="deal-name">Wood Personnel</td><td class="money">$30K</td><td>Solutioning</td><td>1</td><td>Single-threaded. Add backup contact.</td></tr>
+        <tr><td class="deal-name">CBG Staffing</td><td class="money">$12K</td><td>Redlines</td><td>1</td><td>Single-threaded in Redlines.</td></tr>
+        <tr><td class="deal-name">SourceNow</td><td class="money">$12K</td><td>Discovery</td><td class="overdue">0</td><td>No contact. 2,400 placements/yr but invisible.</td></tr>
+        <tr><td class="deal-name">Drake International</td><td class="money">$12K</td><td>Discovery</td><td class="overdue">0</td><td>Phased rollout noted but no contact.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Hygiene Issues -->
+  <div class="section">
+    <div class="section-title">CRM Hygiene Audit</div>
+    <div class="hygiene-grid">
+      <div class="hygiene-card">
+        <div class="hygiene-icon critical">&#x26A0;</div>
+        <div class="hygiene-text">
+          <div class="ht-label">16 deals missing close date</div>
+          <div class="ht-detail">53% of pipeline has no target close date. Zero accountability.</div>
+        </div>
+      </div>
+      <div class="hygiene-card">
+        <div class="hygiene-icon critical">&#x26A0;</div>
+        <div class="hygiene-text">
+          <div class="ht-label">14 deals with overdue close date</div>
+          <div class="ht-detail">100% of dated deals are past due by 281&ndash;705 days.</div>
+        </div>
+      </div>
+      <div class="hygiene-card">
+        <div class="hygiene-icon critical">&#x26A0;</div>
+        <div class="hygiene-text">
+          <div class="ht-label">18 deals with zero contacts</div>
+          <div class="ht-detail">60% of active pipeline has no associated person. $800K+ unthreaded.</div>
+        </div>
+      </div>
+      <div class="hygiene-card">
+        <div class="hygiene-icon critical">&#x26A0;</div>
+        <div class="hygiene-text">
+          <div class="ht-label">0 deals with recorded next steps</div>
+          <div class="ht-detail">No visible next actions, deadlines, or owners on any deal.</div>
+        </div>
+      </div>
+      <div class="hygiene-card">
+        <div class="hygiene-icon warning">&#x1F50D;</div>
+        <div class="hygiene-text">
+          <div class="ht-label">30 deals with no recent activity</div>
+          <div class="ht-detail">All deals imported Mar 10, 2025. No updates since.</div>
+        </div>
+      </div>
+      <div class="hygiene-card">
+        <div class="hygiene-icon warning">&#x1F50D;</div>
+        <div class="hygiene-text">
+          <div class="ht-label">6 deals single-threaded (1 contact)</div>
+          <div class="ht-detail">20% of deals depend on a single person. If they leave, deal dies.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline by Deal Type -->
+  <div class="section">
+    <div class="section-title">Pipeline by Deal Type</div>
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Type</th><th>Deals</th><th>Value</th><th>% of Pipeline</th><th>Insight</th></tr></thead>
+      <tbody>
+        <tr><td>Direct</td><td>6</td><td class="money">$912K</td><td>58%</td><td>Highest-value segment. No partner dependencies but full burden on your team.</td></tr>
+        <tr><td>Partner (Reseller)</td><td>6</td><td class="money">$450K</td><td>29%</td><td>Tempworks, Everee, ASYMBL, Housecall Pro. All stalled on partner timelines.</td></tr>
+        <tr><td>Partner Customer</td><td>16</td><td class="money">$194K</td><td>12%</td><td>High count, low individual value. Batch nurture quarterly.</td></tr>
+        <tr><td>Marketplace</td><td>2</td><td class="money">$0</td><td>0%</td><td>Screening partners. Operational, not revenue.</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Recommendations -->
+  <div class="section">
+    <div class="section-title">Recommendations</div>
+
+    <h4 style="color:#3b82f6;font-size:14px;margin-bottom:16px">This Week (Feb 5&ndash;7)</h4>
+    <div class="rec-timeline">
+      <div class="rec-item"><h4>Make 6 decision calls on biggest deals</h4><p>Staffmark, Fortis, Tempworks, Korn Ferry, Jitjatjo, Oxfordglobal. Find out what's alive.</p></div>
+      <div class="rec-item"><h4>Delete all overdue close dates from CRM</h4><p>Replace with nothing or Q1/Q2 2026 dates confirmed by calls.</p></div>
+      <div class="rec-item"><h4>Add contacts to every deal above $10K</h4><p>If no contact can be found, the deal isn't real. Archive it.</p></div>
+      <div class="rec-item"><h4>Set concrete next steps on 3 "rescue" deals</h4><p>Staffmark, Tempworks, Housecall Pro. Assign owner + action + deadline.</p></div>
+    </div>
+
+    <h4 style="color:#f97316;font-size:14px;margin:24px 0 16px">This Month (Feb 10&ndash;28)</h4>
+    <div class="rec-timeline">
+      <div class="rec-item"><h4>Partner Reset Meeting (Feb 20)</h4><p>Single meeting for all reseller/partner deal owners. Confirm or kill each deal.</p></div>
+      <div class="rec-item"><h4>Direct Deal Contact Blitz</h4><p>Every Direct deal gets at least 1 call scheduled by Feb 21.</p></div>
+      <div class="rec-item"><h4>Batch Partner Customer Tier into quarterly cadence</h4><p>16 small deals. Monthly group check-in, not individual pursuit.</p></div>
+      <div class="rec-item"><h4>Target end state: 15&ndash;18 real deals, all with contacts, dates, and next steps</h4><p>Realistic pipeline: $900K&ndash;$1.2M. High-confidence: ~$500K.</p></div>
+    </div>
+  </div>
+
+  <!-- Deals to Remove -->
+  <div class="section">
+    <div class="section-title">Deals to Consider Removing <span class="badge badge-red">$87K in pipeline noise</span></div>
+    <div class="archive-row"><div><span class="ar-name">Jovie</span> <span class="ar-val">&mdash; $24K</span></div><div class="ar-reason">Explicitly marked "On Hold." Not active.</div></div>
+    <div class="archive-row"><div><span class="ar-name">Hospitality Staffing</span> <span class="ar-val">&mdash; $50K</span></div><div class="ar-reason">Close date 23 months overdue. No activity in 11 months.</div></div>
+    <div class="archive-row"><div><span class="ar-name">First Place Pediatric</span> <span class="ar-val">&mdash; $510</span></div><div class="ar-reason">Pipeline noise. $510 deal, no close date.</div></div>
+    <div class="archive-row"><div><span class="ar-name">BeaverTec</span> <span class="ar-val">&mdash; $6K</span></div><div class="ar-reason">No close date, no contacts. Batch quarterly.</div></div>
+    <div class="archive-row"><div><span class="ar-name">The Job Store</span> <span class="ar-val">&mdash; $2.5K</span></div><div class="ar-reason">$2.5K, no close date. Quarterly batch only.</div></div>
+    <div class="archive-row"><div><span class="ar-name">Vanderhouwen</span> <span class="ar-val">&mdash; $2.5K</span></div><div class="ar-reason">Same as above.</div></div>
+    <div class="archive-row"><div><span class="ar-name">UHC</span> <span class="ar-val">&mdash; $1.5K</span></div><div class="ar-reason">$1.5K, no date, no contacts. Batch only.</div></div>
+    <div class="archive-row"><div><span class="ar-name">Vibra Travel</span> <span class="ar-val">&mdash; $1.5K</span></div><div class="ar-reason">Same as above.</div></div>
+    <div class="archive-row"><div><span class="ar-name">Exos Talent</span> <span class="ar-val">&mdash; $1.5K</span></div><div class="ar-reason">Same as above.</div></div>
+    <p style="font-size:13px;color:#94a3b8;margin-top:12px">Also consider moving <strong>Bullhorn, ClearCompany, TazWorks, Chane Solutions</strong> ($0 value) to a separate "Strategic Partnerships" tracker &mdash; they're not sales deals.</p>
+  </div>
+
+  <!-- Bottom Line -->
+  <div style="background: linear-gradient(135deg, #1e1b3a 0%, #1a1535 100%); border: 1px solid #312e81; border-radius: 16px; padding: 32px; margin-top: 32px;">
+    <h3 style="font-size:18px;color:#f8fafc;margin-bottom:16px;">The Bottom Line</h3>
+    <p style="font-size:15px;color:#cbd5e1;margin-bottom:16px;">Your $1.56M pipeline is effectively a data import from March 2025 that hasn't been actively worked. After proper triage, realistic high-confidence pipeline is approximately <strong style="color:#f8fafc;">$500K</strong> (Staffmark if real + Tempworks + Everee + Housecall Pro + Oxfordglobal).</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px;">
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#ef4444;">$1.56M</div>
+        <div style="font-size:12px;color:#94a3b8;">Nominal Pipeline</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#f97316;">~$500K</div>
+        <div style="font-size:12px;color:#94a3b8;">High-Confidence (est.)</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:#22c55e;">4&ndash;6 wks</div>
+        <div style="font-size:12px;color:#94a3b8;">To Clean Pipeline State</div>
+      </div>
+    </div>
+    <p style="font-size:14px;color:#94a3b8;margin-top:20px;">The good news: sorting this is a 10-hour effort this week and another 10 hours this month. The fix is achievable. The risk is doing nothing and chasing ghosts for another quarter.</p>
+  </div>
+
+  <div class="footer">
+    Pipeline Health Review &mdash; Generated February 5, 2026 &mdash; Data source: Attio CRM (128 deals analyzed)<br>
+    Onboarded GTM Engine v2
+  </div>
+
+</div>
+</body>
+</html>
